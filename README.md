@@ -5,9 +5,11 @@ A browser console script that removes every video from your YouTube "Liked video
 ## How to use
 1. Open https://www.youtube.com/playlist?list=LL
 2. Press F12 and open the **Console** tab
-3. Paste the contents of `erase-liked-videos.js` and press Enter
-4. Keep the tab open and in the foreground until it prints `Done`
-5. If videos are still left, refresh the page and run it again
+3. **First time only:** Chrome/Edge/Firefox block pasting into the console.
+   Type `allow pasting` and press Enter.
+4. Paste the contents of `erase-liked-videos.js` and press Enter
+5. Keep the tab open and in the foreground until it prints `Done`
+6. If videos are still left, refresh the page and run it again
 
 ## Stop early
 Type this in the console:
