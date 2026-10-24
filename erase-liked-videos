@@ -1,0 +1,52 @@
+(async () => {
+  window.stopUnlike = false;
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+  const DELAY = 400;
+  let count = 0, misses = 0;
+
+  const nextMenuButton = () =>
+    [...document.querySelectorAll('button[aria-label]')].find(b =>
+      /action menu|more actions|작업 메뉴/i.test(b.getAttribute('aria-label')) &&
+      !b.closest('#masthead-container, ytd-masthead') &&
+      !b.dataset.tried &&
+      b.offsetParent !== null
+    );
+
+  const findRemoveItem = () =>
+    [...document.querySelectorAll(
+      'yt-list-item-view-model, ytd-menu-service-item-renderer, tp-yt-paper-item, [role="menuitem"]'
+    )].find(el =>
+      el.offsetParent !== null &&
+      /remove from liked|좋아요.*삭제/i.test(el.innerText || '')
+    );
+
+  while (misses < 15 && !window.stopUnlike) {
+    const btn = nextMenuButton();
+    if (!btn) {
+      // nudge YouTube to load more: scroll up a bit, then to the bottom
+      window.scrollBy(0, -800);
+      await sleep(500);
+      window.scrollTo(0, document.documentElement.scrollHeight);
+      await sleep(2000);
+      misses++;
+      console.log(`Waiting for more videos to load... (${misses}/15)`);
+      continue;
+    }
+    misses = 0;
+    btn.dataset.tried = '1';
+    btn.scrollIntoView({ block: 'center' });
+    btn.click();
+    await sleep(DELAY);
+
+    const remove = findRemoveItem();
+    if (remove) {
+      remove.click();
+      console.log(`Unliked ${++count}`);
+    } else {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      console.log('Skipped one');
+    }
+    await sleep(DELAY);
+  }
+  console.log(window.stopUnlike ? `Stopped. Unliked ${count}.` : `Done. Unliked ${count}. Refresh and run again if any are left.`);
+})();
